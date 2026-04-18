@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClariMed Notification Test</title>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #0b1220; color: #e5e7eb; margin: 0; padding: 24px; }
+    .card { max-width: 720px; margin: 0 auto; background: #111827; border: 1px solid #1f2937; border-radius: 14px; padding: 20px; }
+    h1 { margin: 0 0 12px; font-size: 1.25rem; }
+    p { color: #9ca3af; line-height: 1.5; }
+    label { display: block; margin-top: 14px; margin-bottom: 6px; font-size: 0.86rem; color: #d1d5db; }
+    input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #374151; background: #0f172a; color: #f9fafb; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    button { border: 0; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 600; }
+    .primary { background: #2563eb; color: white; }
+    .secondary { background: #374151; color: #f9fafb; }
+    .success { background: #059669; color: white; }
+    pre { margin-top: 14px; background: #0b1220; border: 1px solid #1f2937; border-radius: 10px; padding: 12px; color: #cbd5e1; max-height: 260px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>ClariMed Browser Notification Test</h1>
+    <p>Use this temporary page to verify browser notifications and due-reminder API behavior.</p>
+
+    <label for="apiBase">API Base URL</label>
+    <input id="apiBase" value="http://127.0.0.1:8000" />
+
+    <label for="email">User Email</label>
+    <input id="email" placeholder="you@example.com" />
+
+    <div class="row">
+      <button class="primary" id="requestPerm">Request Notification Permission</button>
+      <button class="secondary" id="localTest">Local Test Notification (5s)</button>
+      <button class="success" id="checkDue">Check Due Reminders Now</button>
+    </div>
+
+    <pre id="log">Ready.</pre>
+  </div>
+
+  <script>
+    const logEl = document.getElementById('log');
+    const apiBaseEl = document.getElementById('apiBase');
+    const emailEl = document.getElementById('email');
+
+    const log = (msg) => {
+      const now = new Date().toLocaleTimeString();
+      logEl.textContent = `[${now}] ${msg}\n` + logEl.textContent;
+    };
+
+    async function ensurePermission() {
+      if (!('Notification' in window)) {
+        log('This browser does not support Notification API.');
+        return false;
+      }
+      if (Notification.permission === 'granted') {
+        log('Notification permission already granted.');
+        return true;
+      }
+      const result = await Notification.requestPermission();
+      log(`Permission result: ${result}`);
+      return result === 'granted';
+    }
+
+    async function markNotified(base, reminderId, email) {
+      try {
+        await fetch(`${base}/reminders/${encodeURIComponent(reminderId)}/mark-notified`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_email: email }),
+        });
+      } catch (err) {
+        log(`Failed to mark notified for ${reminderId}: ${err}`);
+      }
+    }
+
+    document.getElementById('requestPerm').addEventListener('click', async () => {
+      await ensurePermission();
+    });
+
+    document.getElementById('localTest').addEventListener('click', async () => {
+      const ok = await ensurePermission();
+      if (!ok) return;
+      log('Will fire test notification in 5 seconds...');
+      setTimeout(() => {
+        new Notification('ClariMed Test', {
+          body: 'This is a local browser notification test.',
+          tag: 'clarimed-local-test'
+        });
+        log('Local test notification fired.');
+      }, 5000);
+    });
+
+    document.getElementById('checkDue').addEventListener('click', async () => {
+      const ok = await ensurePermission();
+      if (!ok) return;
+
+      const base = apiBaseEl.value.trim().replace(/\/+$/, '');
+      const email = emailEl.value.trim().toLowerCase();
+      if (!email) {
+        log('Please enter user email.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${base}/reminders/due/${encodeURIComponent(email)}`);
+        if (!res.ok) {
+          const text = await res.text();
+          log(`Due API failed: ${res.status} ${text}`);
+          return;
+        }
+        const data = await res.json();
+        const reminders = Array.isArray(data?.reminders) ? data.reminders : [];
+
+        if (reminders.length === 0) {
+          log('No due reminders right now.');
+          return;
+        }
+
+        log(`Found ${reminders.length} due reminder(s). Showing notifications...`);
+        for (const reminder of reminders) {
+          const n = new Notification('ClariMed Reminder', {
+            body: `Due now • Reminder in ${reminder.remind_in_days} days${reminder.health_score != null ? ` • Health score: ${reminder.health_score}` : ''}`,
+            tag: `clarimed-reminder-${reminder.id}`,
+          });
+          n.onclick = () => window.focus();
+          await markNotified(base, reminder.id, email);
+          log(`Displayed + marked notified: ${reminder.id}`);
+        }
+      } catch (err) {
+        log(`Error: ${err}`);
+      }
+    });
+  </script>
+</body>
+</html>

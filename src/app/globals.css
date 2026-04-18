@@ -1,0 +1,345 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────
+   DESIGN SYSTEM: Dual-Theme
+   Dark (auth/upload) + "Zen Medical" (results)
+   ────────────────────────────────────────────── */
+
+:root {
+  /* === Dark Theme (auth / upload / loading) === */
+  --background: #000000;
+  --foreground: #ffffff;
+
+  /* === Zen Medical — Light Results === */
+  --zen-bg: #F8F9FA;
+  --zen-bg-soft: #F3F5F8;
+  --zen-bg-warm: #F5F3EF;
+  --zen-surface: rgba(255, 255, 255, 0.72);
+  --zen-surface-solid: #FFFFFF;
+  --zen-border: rgba(0, 0, 0, 0.06);
+  --zen-border-hover: rgba(0, 0, 0, 0.12);
+  --zen-text: #1A1A2E;
+  --zen-text-secondary: #374151;
+  --zen-text-muted: #6B7280;
+  --zen-text-faint: #9CA3AF;
+
+  /* === Status Pastels === */
+  --zen-normal-bg: #E6F4EA;
+  --zen-normal-text: #1E4620;
+  --zen-normal-accent: #34A853;
+  --zen-mild-bg: #FFF4E5;
+  --zen-mild-text: #663C00;
+  --zen-mild-accent: #F59E0B;
+  --zen-critical-bg: #FCE8E6;
+  --zen-critical-text: #C62828;
+  --zen-critical-accent: #EF4444;
+
+  /* === Brand === */
+  --zen-brand: #E8F0FE;
+  --zen-brand-text: #1A56DB;
+  --zen-brand-solid: #3B82F6;
+  --zen-brand-hover: #2563EB;
+
+  /* === Shadows (Soft Pearl) === */
+  --zen-shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --zen-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --zen-shadow-lg: 0 8px 32px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+  --zen-shadow-xl: 0 16px 48px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05);
+
+  /* === Legacy dark tokens (for auth/upload) === */
+  --navy: #1B263B;
+  --navy-light: #243049;
+  --navy-surface: #1E2D44;
+  --charcoal: #2D3748;
+  --slate: #4A5568;
+  --slate-light: #718096;
+  --cream: #F7F5F0;
+  --cream-dim: #D9D5CC;
+  --sage: #7C9A72;
+  --sage-light: #A3BE8C;
+  --sage-bg: rgba(124, 154, 114, 0.12);
+  --terracotta: #C4634B;
+  --terracotta-light: #D48B78;
+  --terracotta-bg: rgba(196, 99, 75, 0.12);
+  --amber-matte: #C9A84C;
+  --amber-bg: rgba(201, 168, 76, 0.12);
+  --frost: rgba(255, 255, 255, 0.05);
+  --frost-border: rgba(255, 255, 255, 0.08);
+  --frost-hover: rgba(255, 255, 255, 0.09);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), var(--font-sans), Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ──────────────────────────────────────────────
+   AUTH / UPLOAD utilities (preserved)
+   ────────────────────────────────────────────── */
+@layer utilities {
+  .glass-panel {
+    @apply bg-black/40 backdrop-blur-md border border-white/10 shadow-2xl;
+  }
+}
+
+/* ──────────────────────────────────────────────
+   ZEN MEDICAL — Results View
+   ────────────────────────────────────────────── */
+
+.zen-results {
+  --zen-nav-bg: rgba(248, 249, 250, 0.88);
+  background-color: #F8F9FA !important;
+  background-image: none !important;
+  color: var(--zen-text);
+  min-height: 100vh;
+}
+
+/* === Glassmorphism Card === */
+.zen-glass {
+  background: var(--zen-surface);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border: 1px solid var(--zen-border);
+  border-radius: 20px;
+  box-shadow: var(--zen-shadow);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.zen-glass-hover:hover {
+  transform: scale(1.02);
+  box-shadow: var(--zen-shadow-lg);
+}
+
+/* === Solid Glass (more opaque) === */
+.zen-glass-solid {
+  background: var(--zen-surface-solid);
+  border: 1px solid var(--zen-border);
+  border-radius: 20px;
+  box-shadow: var(--zen-shadow);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+}
+.zen-glass-solid:hover {
+  border-color: var(--zen-border-hover);
+  box-shadow: var(--zen-shadow-lg);
+}
+
+/* === Status Pills === */
+.zen-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: transform 0.15s ease;
+}
+.zen-pill:hover {
+  transform: scale(1.04);
+}
+.zen-pill-normal {
+  background: var(--zen-normal-bg);
+  color: var(--zen-normal-text);
+}
+.zen-pill-mild {
+  background: var(--zen-mild-bg);
+  color: var(--zen-mild-text);
+}
+.zen-pill-critical {
+  background: var(--zen-critical-bg);
+  color: var(--zen-critical-text);
+}
+.zen-pill-brand {
+  background: var(--zen-brand);
+  color: var(--zen-brand-text);
+}
+
+/* === Progress Bar === */
+.zen-progress-track {
+  height: 8px;
+  border-radius: 4px;
+  background: #F3F4F6;
+  overflow: hidden;
+}
+.zen-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* === Section Nav (sticky top) === */
+.zen-section-nav {
+  position: sticky;
+  top: 64px;
+  z-index: 40;
+  background: var(--zen-nav-bg, rgba(248, 249, 250, 0.85));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--zen-border);
+}
+.zen-section-nav a {
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--zen-text-muted);
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+.zen-section-nav a:hover,
+.zen-section-nav a.active {
+  color: var(--zen-brand-text);
+  border-bottom-color: var(--zen-brand-solid);
+}
+
+/* === Tooltip === */
+.zen-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--zen-brand);
+  color: var(--zen-brand-text);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: var(--zen-shadow);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 50;
+}
+.group:hover .zen-tooltip {
+  opacity: 1;
+}
+
+/* === Scrollbar (zen) === */
+.zen-results ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.zen-results ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.zen-results ::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #E5E7EB;
+  border-radius: 4px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+}
+
+/* === Button styles === */
+.zen-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--zen-brand-solid);
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--zen-shadow-sm);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.zen-btn-primary:hover {
+  background: var(--zen-brand-hover);
+  box-shadow: var(--zen-shadow);
+  transform: translateY(-1px);
+}
+.zen-btn-primary:focus-visible,
+.zen-btn-ghost:focus-visible {
+  outline: 2px solid var(--zen-brand-solid);
+  outline-offset: 2px;
+}
+.zen-btn-primary:active {
+  transform: translateY(0);
+}
+
+.zen-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--zen-text-muted);
+  font-weight: 500;
+  font-size: 0.8rem;
+  border-radius: 12px;
+  border: 1px solid var(--zen-border);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.zen-btn-ghost:hover {
+  background: var(--zen-bg-soft);
+  color: var(--zen-text);
+  border-color: var(--zen-border-hover);
+}
+
+.zen-readable-title {
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.35;
+  color: var(--zen-text);
+}
+
+.zen-readable-body {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--zen-text-secondary);
+}
+
+/* === Animations === */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+/* === Horizontal scroll container === */
+.zen-h-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+.zen-h-scroll > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
